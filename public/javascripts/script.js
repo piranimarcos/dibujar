@@ -22,3 +22,70 @@
 
   // abrimos la conexion
   var socket = io.connect(url);
+
+  /*
+    Administradores de eventos
+  */
+
+  function moveHandler(data) {
+    if(! (data.id in clients)){
+      // le damos un cursor a cada usuario nuestro
+      cursors[data.id] = $('<div class="cursor">').appendTo('#cursors');
+    }
+
+    // movemos el cursor a su posicion
+    cursors[data.id].css({
+      'left' : data.x,
+      'top' : data.y
+    });
+
+    if(data.drawing && clients[data.id]){
+      drawLine(clients[data.id].x, clients[data.id].y, data.x, data.y, data.color);
+    }
+
+    // actualizamos el estado
+    clients[data.id] = data;
+    clients[data.id].updated = $.now();
+  }
+
+  function mousedownHandler(e) {
+    e.preventDefault();
+    drawing = true;
+    prev.x = e.pageX;
+    prev.y = e.pageY;
+
+    // escondemos las instrucciones
+    instructions.fadeOut();
+  }
+
+  function mousemoveHandler(e) {
+    if($.now() - lastEmit > 30){
+      var movement = {
+        'x': e.pageX,
+        'y': e.pageY,
+        'drawing': drawing,
+        'color': cursorColor,
+        'id': id
+      };
+      socket.emit('mousemove', movement);
+      lastEmit = $.now();
+    }
+
+    if(drawing){
+
+      drawLine(prev.x, prev.y, e.pageX, e.pageY, cursorColor);
+
+      prev.x = e.pageX;
+      prev.y = e.pageY;
+    }
+  }
+
+  function drawLine(fromx, fromy, tox, toy, color){
+    ctx.beginPath(); // create a new empty path (no subpaths!)
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.moveTo(fromx, fromy);
+    ctx.lineTo(tox, toy);
+    ctx.stroke();
+  }
+
