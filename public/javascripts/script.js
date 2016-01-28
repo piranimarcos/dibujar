@@ -89,3 +89,38 @@
     ctx.stroke();
   }
 
+  function connectionHandler(data) {
+    console.log('connections', connections);
+    connections.text(data.connections + ' conectados');
+  }
+
+  function randomColor() {
+    // colores aleatorios para el cursor
+    return '#'+(function lol(m,s,c){return s[m.floor(m.random() * s.length)] +
+    (c && lol(m,s,c-1));})(Math,'0123456789ABCDEF',4);
+  }
+
+  /*
+    Adjuntamos los eventos
+  */
+  socket.on('move', moveHandler);
+  socket.on('connections', connectionHandler);
+  canvas.on('mousedown', mousedownHandler);
+  doc.on('mousemove', mousemoveHandler);
+
+  doc.bind('mouseup mouseleave',function(){
+    drawing = false;
+  });
+
+  /*
+    Borramos sessiones viejas
+  */
+  setInterval(function(){
+    for(var ident in clients){
+      if($.now() - clients[ident].updated > 10000){
+        cursors[ident].remove();
+        delete clients[ident];
+        delete cursors[ident];
+      }
+    }
+  },10000);
