@@ -7,6 +7,9 @@
 var app = require('../app');
 var debug = require('debug')('dibujemos:server');
 var http = require('http');
+var path = require('path');
+var io = require('socket.io');
+var connections = 0;
 
 /**
  * Get port from environment and store in Express.
@@ -21,9 +24,36 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
+io = io.listen(server);
 /**
  * Listen on provided port, on all network interfaces.
  */
+
+io.set('log level', 1);
+
+// Escuchamos conexiones entrantes
+io.sockets.on('connection', function (socket) {
+  connections++;
+  console.log('connected', connections);
+  socket.broadcast.emit('connections', {connections:connections});
+
+  // Detectamos eventos de mouse
+  socket.on('mousemove', function (data) {
+    // transmitimos el movimiento a todos los clientes conectados
+    socket.broadcast.emit('move', data);
+  });
+
+  socket.on('disconnect', function() {
+    connections--;
+    console.log('connected', connections);
+    socket.broadcast.emit('connections', {connections:connections});
+  });
+});
+
+
+server.listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
 
 server.listen(port);
 server.on('error', onError);
