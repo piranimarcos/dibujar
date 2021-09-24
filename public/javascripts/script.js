@@ -154,7 +154,7 @@ doc.on("mousemove ", mousemoveHandler);
 canvas.on("touchstart", touchstartHandler);
 doc.on("touchmove", touchmoveHandler);
 
-doc.bind("mouseup mouseleave touchend", function () {
+doc.bind("mouseup mouseleave touchend touchcancel", function () {
   drawing = false;
 });
 
