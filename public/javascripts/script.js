@@ -27,6 +27,8 @@ var socket = io.connect(url);
   */
 
 function moveHandler(data) {
+  console.log(data);
+  console.log(clients);
   if (!(data.id in clients)) {
     // le damos un cursor a cada usuario nuestro
     cursors[data.id] = $('<div class="cursor">').appendTo("#cursors");
@@ -155,6 +157,8 @@ canvas.on("touchstart", touchstartHandler);
 doc.on("touchmove", touchmoveHandler);
 
 doc.bind("mouseup mouseleave touchend touchcancel", function () {
+  prev.x = 0;
+  prev.y = 0;
   drawing = false;
 });
 
