@@ -63,6 +63,19 @@ function mousedownHandler(e) {
   instructions.fadeOut();
 }
 
+// idem para touch
+function touchstartHandler(e) {
+  e.preventDefault();
+
+  var touch = e.touches[0];
+  drawing = true;
+  prev.x = touch.pageX;
+  prev.y = touch.pageY;
+
+  // escondemos las instrucciones
+  instructions.fadeOut();
+}
+
 function mousemoveHandler(e) {
   if ($.now() - lastEmit > 30) {
     var movement = {
@@ -81,6 +94,28 @@ function mousemoveHandler(e) {
 
     prev.x = e.pageX;
     prev.y = e.pageY;
+  }
+}
+
+function touchmoveHandler(e) {
+  if ($.now() - lastEmit > 30) {
+    var touch = e.touches[0];
+    var movement = {
+      x: touch.pageX,
+      y: touch.pageY,
+      drawing: drawing,
+      color: cursorColor,
+      id: id,
+    };
+    socket.emit("mousemove", movement);
+    lastEmit = $.now();
+  }
+
+  if (drawing) {
+    drawLine(prev.x, prev.y, touch.pageX, touch.pageY, cursorColor);
+
+    prev.x = touch.pageX;
+    prev.y = touch.pageY;
   }
 }
 
@@ -113,8 +148,11 @@ function randomColor() {
   */
 socket.on("move", moveHandler);
 socket.on("connections", connectionHandler);
-canvas.on("mousedown touchstart", mousedownHandler);
-doc.on("mousemove touchmove", mousemoveHandler);
+canvas.on("mousedown", mousedownHandler);
+doc.on("mousemove ", mousemoveHandler);
+
+canvas.on("touchstart", touchstartHandler);
+doc.on("touchmove", touchmoveHandler);
 
 doc.bind("mouseup mouseleave touchend", function () {
   drawing = false;
