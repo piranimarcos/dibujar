@@ -67,7 +67,7 @@ function mousedownHandler(e) {
 function touchstartHandler(e) {
   e.preventDefault();
 
-  var touch = e.touches[0];
+  var touch = e.originalEvent.changedTouches[0];
   drawing = true;
   prev.x = touch.pageX;
   prev.y = touch.pageY;
@@ -99,7 +99,7 @@ function mousemoveHandler(e) {
 
 function touchmoveHandler(e) {
   if ($.now() - lastEmit > 30) {
-    var touch = e.touches[0];
+    var touch = e.originalEvent.changedTouches[0];
     var movement = {
       x: touch.pageX,
       y: touch.pageY,
