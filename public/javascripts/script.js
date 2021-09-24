@@ -98,8 +98,8 @@ function mousemoveHandler(e) {
 }
 
 function touchmoveHandler(e) {
+  var touch = e.originalEvent.changedTouches[0];
   if ($.now() - lastEmit > 30) {
-    var touch = e.originalEvent.changedTouches[0];
     var movement = {
       x: touch.pageX,
       y: touch.pageY,
